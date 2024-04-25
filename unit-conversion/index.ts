@@ -1,0 +1,94 @@
+//
+// Given a list of unit conversions, such as 1 foot equals 12 inches or 1 meter equals 1000 millimeters, write a program that can generally convert from one unit to another.
+//
+// example facts:
+// m = 3.28 ft
+// ft = 12 in
+// hr = 60 min
+// min = 60 sec
+
+
+// example queries:
+//     2 m = ? in    --> answer = 78.72
+//     13 in = ? m   --> answer = 0.330 (roughly)
+//     13 in = ? hr  --> "not convertible"
+
+
+const conversions = [
+    {fromUnit: "m", toUnit: "ft", factor: 3.28},
+    {fromUnit: "ft", toUnit: "in", factor: 12},
+    {fromUnit: "hr", toUnit: "min", factor: 60},
+    {fromUnit: "min", toUnit: "sec", factor: 60}
+]
+
+
+type Input = {
+    value: number
+    unit: string
+}
+
+
+function dfs(start: string, end: string, visited = new Set(), cumFactor = 1) {
+    visited.add(start)
+    const destinations = adjacencyList.get(start)
+    for (const dest of destinations!) {
+        console.log("VISITING", dest.unit, cumFactor)
+        if (dest.unit == end) {
+            console.log("FOUND", cumFactor * dest.weight)
+            return cumFactor * dest.weight
+        }
+        if (!visited.has(dest)) {
+            const result: any = dfs(dest.unit, end, visited, cumFactor * dest.weight)
+            if (result !== null) {
+                return result
+            }
+        }
+    }
+    return null
+
+}
+
+// construct a graph that connects units, each node represents a unit and the edges represent a weight.
+// construct a graph that goes in both directions
+// Use DFS to see if the nodes are connected
+// As you traverse the graph multiply thee value by the weight of the edge.
+
+type Connection = {
+    unit: string;
+    weight: number;
+}
+
+const adjacencyList = new Map<string, Connection[]>();
+
+function addNode(unit: string) {
+    adjacencyList.set(unit, [])
+}
+
+function addEdge(fromUnit: string, toUnit: string, weight: number) {
+    adjacencyList.get(fromUnit)!.push({unit: toUnit, weight})
+    adjacencyList.get(toUnit)!.push({unit: fromUnit, weight: 1 / weight})
+}
+
+// TODO: Fix the other dierection
+
+conversions.forEach(c => {
+    addNode(c.fromUnit)
+    addNode(c.toUnit)
+    addEdge(c.fromUnit, c.toUnit, c.factor)
+})
+
+console.log(adjacencyList)
+
+
+convert({value: 2, unit: "in"}, "hr")
+
+function convert(input: Input, desiredUnit: string) {
+    const cumFactor = dfs(input.unit, desiredUnit)
+
+    if (cumFactor) {
+        console.log(input.value * cumFactor)
+    } else {
+        console.log("Not connected")
+    }
+}
+
