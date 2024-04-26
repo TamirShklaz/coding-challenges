@@ -63,7 +63,7 @@ conversions.forEach(c => {
 
 conversions.forEach(c => {
     addEdge(c.fromUnit, c.toUnit, c.factor)
-    addEdge(c.toUnit, c.fromUnit, 1/c.factor)
+    addEdge(c.toUnit, c.fromUnit, 1 / c.factor)
 })
 
 console.log(adjacencyList)
