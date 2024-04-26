@@ -22,30 +22,21 @@ const conversions = [
 ]
 
 
-type Input = {
-    value: number
-    unit: string
-}
-
-
-function dfs(start: string, end: string, visited = new Set(), cumFactor = 1) {
+function dfs(start: string, end: string, visited = new Set<string>(), pathValue = 1) {
+    if (start === end) {
+        return pathValue
+    }
     visited.add(start)
     const destinations = adjacencyList.get(start)
     for (const dest of destinations!) {
-        console.log("VISITING", dest.unit, cumFactor)
-        if (dest.unit == end) {
-            console.log("FOUND", cumFactor * dest.weight)
-            return cumFactor * dest.weight
-        }
-        if (!visited.has(dest)) {
-            const result: any = dfs(dest.unit, end, visited, cumFactor * dest.weight)
-            if (result !== null) {
+        if (!visited.has(dest.unit)) {
+            const result: any = dfs(dest.unit, end, visited, pathValue * dest.weight)
+            if (result !== -1.0) {
                 return result
             }
         }
     }
-    return null
-
+    return -1.0
 }
 
 // construct a graph that connects units, each node represents a unit and the edges represent a weight.
@@ -53,10 +44,6 @@ function dfs(start: string, end: string, visited = new Set(), cumFactor = 1) {
 // Use DFS to see if the nodes are connected
 // As you traverse the graph multiply thee value by the weight of the edge.
 
-type Connection = {
-    unit: string;
-    weight: number;
-}
 
 const adjacencyList = new Map<string, Connection[]>();
 
@@ -66,29 +53,42 @@ function addNode(unit: string) {
 
 function addEdge(fromUnit: string, toUnit: string, weight: number) {
     adjacencyList.get(fromUnit)!.push({unit: toUnit, weight})
-    adjacencyList.get(toUnit)!.push({unit: fromUnit, weight: 1 / weight})
 }
 
-// TODO: Fix the other dierection
 
 conversions.forEach(c => {
     addNode(c.fromUnit)
     addNode(c.toUnit)
+})
+
+conversions.forEach(c => {
     addEdge(c.fromUnit, c.toUnit, c.factor)
+    addEdge(c.toUnit, c.fromUnit, 1/c.factor)
 })
 
 console.log(adjacencyList)
 
 
-convert({value: 2, unit: "in"}, "hr")
+convert({value: 13, unit: "in"}, "m")
 
 function convert(input: Input, desiredUnit: string) {
     const cumFactor = dfs(input.unit, desiredUnit)
+    console.log(cumFactor)
 
-    if (cumFactor) {
+    if (cumFactor >= 0) {
         console.log(input.value * cumFactor)
     } else {
         console.log("Not connected")
     }
 }
 
+
+type Input = {
+    value: number
+    unit: string
+}
+
+type Connection = {
+    unit: string;
+    weight: number;
+}
