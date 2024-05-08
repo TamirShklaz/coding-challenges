@@ -31,31 +31,24 @@ function minCoins(coins: number[], sum: number): Result {
     return finalResult
 }
 
-console.log(minCoins([1, 4, 5], 150))
+// console.log(minCoins([1, 4, 5], 150))
 
 
-// const getWaysMemo = new Map<number, number>
-// const ways: number[][] = []
-//
-// function getWays(sum: number, coins: number[]): number {
-//     let numWays = 1
-//
-//     if (getWaysMemo.has(sum)) {
-//         // console.log(`Found ${sum}} returning ${memo.get(sum)}}`)
-//         return getWaysMemo.get(sum)!
-//     }
-//     if (sum === 0) {
-//         numWays ++
-//     } else {
-//         for (let coin of coins) {
-//             if (coin <= sum) {
-//                 numWays =  getWays(sum - coin, coins) +1
-//             }
-//         }
-//     }
-//
-// getWaysMemo.set(sum, numWays)
-// return numWays
-// }
-//
-// console.log(getWays(4, [1, 2, 3]))
+const getWaysMemo = new Map<number, number>
+const ways: number[][] = []
+
+function getWays(sum: number, coins: number[]): number {
+    getWaysMemo.set(0, 1)
+    for (let i = 1; i <= sum; i++) {
+        getWaysMemo.set(i, 0)
+        for (let coin of coins) {
+            let change = i - coin
+            if (!(change < 0)) {
+                getWaysMemo.set(i, getWaysMemo.get(i)! + getWaysMemo.get(change)!)
+            }
+        }
+    }
+    return getWaysMemo.get(sum)!
+}
+
+console.log(getWays(5, [1, 4, 5]))
